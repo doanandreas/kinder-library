@@ -5,9 +5,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY *.go .
+COPY . .
 
-RUN go build -o /kinder-library
+RUN go build -o /kinder-library ./cmd/api
 
 EXPOSE 8080
 
