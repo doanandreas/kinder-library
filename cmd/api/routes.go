@@ -16,8 +16,8 @@ func (app *Application) routes() http.Handler {
 
 	router.Get("/v1/books", app.listBooksHandler)
 	router.Post("/v1/books", app.insertBooksHandler)
-	router.Put("/v1/books", app.updateBooksHandler)
-	router.Delete("/v1/books", app.deleteBooksHandler)
+	router.Put("/v1/books/{id}", app.updateBooksHandler)
+	router.Delete("/v1/books/{id}", app.deleteBooksHandler)
 
 	return router
 }
