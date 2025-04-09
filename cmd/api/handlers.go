@@ -36,6 +36,14 @@ func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) healthcheckHandler(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, "status: available\n")
-	fmt.Fprintf(w, "version: %s\n", version)
+	data := map[string]string{
+		"status":  "available",
+		"version": version,
+	}
+
+	err := app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		app.logger.Printf("Failed to write JSON response: %v\n", err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
