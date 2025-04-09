@@ -36,7 +36,7 @@ services:
     ports:
       - "${PGWEB_PORT}:8081"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      PGWEB_DATABASE_URL: ${PGWEB_DATABASE_URL}
     networks:
       - postgres
     restart: always

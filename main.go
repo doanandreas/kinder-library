@@ -14,7 +14,7 @@ func main() {
 
 	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello KinderCastle!"))
+		w.Write([]byte("bruhhhh h h h"))
 	})
 
 	port := os.Getenv("API_PORT")
