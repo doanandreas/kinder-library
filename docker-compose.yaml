@@ -1,5 +1,49 @@
+version: "3.5"
+
 services:
-  web:
+  api:
+    container_name: kinder_library_api
     build: .
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
+      - "${API_PORT}:${API_PORT}"
+    networks:
+      - postgres
+    restart: always
+
+  db:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - postgres
+    restart: always
+
+  postgres-web:
+    container_name: postgres_web
+    image: sosedoff/pgweb
+    ports:
+      - "${PGWEB_PORT}:8081"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - postgres
+    restart: always
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:

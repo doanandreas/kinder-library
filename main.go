@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"log"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -16,7 +17,18 @@ func main() {
 		w.Write([]byte("Hello KinderCastle!"))
 	})
 
-	log.Printf("Starting server on port %s\n", ":8080")
-	err := http.ListenAndServe(":8080", r)
+	port := os.Getenv("API_PORT")
+	log.Printf("API_PORT: %s\n", port)
+	if port == "" {
+		port = "8080"
+	}
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", port),
+		Handler: r,
+	}
+
+	log.Printf("Starting server on port :%s\n", port)
+	err := srv.ListenAndServe()
 	log.Fatal(err)
 }
