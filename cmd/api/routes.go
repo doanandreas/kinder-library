@@ -6,13 +6,18 @@ import (
 	"net/http"
 )
 
-func (app *application) routes() http.Handler {
-	mux := chi.NewRouter()
+func (app *Application) routes() http.Handler {
+	router := chi.NewRouter()
 
-	mux.Use(middleware.Logger)
-	mux.Use(middleware.Recoverer)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
-	mux.Get("/v1/healthcheck", app.healthcheckHandler)
+	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
-	return mux
+	router.Get("/v1/books", app.listBooksHandler)
+	router.Post("/v1/books", app.insertBooksHandler)
+	router.Put("/v1/books", app.updateBooksHandler)
+	router.Delete("/v1/books", app.deleteBooksHandler)
+
+	return router
 }

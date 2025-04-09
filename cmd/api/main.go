@@ -9,23 +9,23 @@ import (
 
 const version = "1.0.0"
 
-type config struct {
+type Config struct {
 	port string
 }
 
-type application struct {
-	config config
+type Application struct {
+	config Config
 	logger *log.Logger
 }
 
 func main() {
-	cfg := config{
+	cfg := Config{
 		port: os.Getenv("API_PORT"),
 	}
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	app := &application{
+	app := &Application{
 		config: cfg,
 		logger: logger,
 	}
