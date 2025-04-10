@@ -46,7 +46,11 @@ func main() {
 
 	err = migrateDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		if errors.Is(err, migrate.ErrNoChange) {
+			logger.Println("migrations already on latest version")
+		} else {
+			logger.Fatal(err)
+		}
 	}
 
 	logger.Printf("database migration ran successfully")
@@ -92,7 +96,9 @@ func migrateDB(cfg Config) error {
 		return err
 	}
 
-	if err := m.Up(); err != nil && errors.Is(err, migrate.ErrNoChange) == false {
+	err = m.Up()
+
+	if err != nil {
 		return err
 	}
 
