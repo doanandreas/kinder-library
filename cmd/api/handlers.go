@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/doanandreas/kinder-library/internal/validator"
 	"net/http"
 	"strconv"
 
@@ -58,6 +59,16 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	v.Check(input.Title != "", "title", "must be provided")
+	v.Check(input.Author != "", "author", "must be provided")
+	v.Check(input.Pages != 0, "pages", "must be provided")
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
