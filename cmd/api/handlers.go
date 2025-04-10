@@ -63,9 +63,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	v := validator.New()
-	v.Check(input.Title != "", "title", "must be provided")
-	v.Check(input.Author != "", "author", "must be provided")
-	v.Check(input.Pages != 0, "pages", "must be provided")
+	input.Validate(v)
 
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)

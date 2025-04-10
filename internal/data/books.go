@@ -1,6 +1,9 @@
 package data
 
-import "time"
+import (
+	"github.com/doanandreas/kinder-library/internal/validator"
+	"time"
+)
 
 type BookListResponse struct {
 	Metadata Metadata `json:"metadata"`
@@ -18,6 +21,10 @@ type BookRequest struct {
 	Description string   `json:"description"`
 	Rating      float64  `json:"rating"`
 	Genres      []string `json:"genres"`
+}
+
+func (b *BookRequest) Validate(v *validator.Validator) {
+
 }
 
 type Book struct {
