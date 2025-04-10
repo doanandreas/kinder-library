@@ -2,13 +2,16 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/lib/pq"
 
 	"github.com/doanandreas/kinder-library/internal/data"
+
+	"github.com/lib/pq"
 )
 
 type BookStore interface {
 	Insert(book *data.Book) error
+	Update(book *data.Book) error
+	Delete(id int64) error
 	List(filters data.Filters) ([]data.Book, data.Pagination, error)
 }
 
@@ -25,6 +28,53 @@ func (pg *PGBookStore) Insert(book *data.Book) error {
 	args := []any{book.Title, book.Author, book.Pages, book.Description, book.Rating, pq.Array(book.Genres)}
 
 	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+}
+
+func (pg *PGBookStore) Update(book *data.Book) error {
+	if book.ID < 1 {
+		return sql.ErrNoRows
+	}
+
+	query := `
+		UPDATE books
+		SET title = $1, author = $2, pages = $3, description = $4, rating = $5, genres = $6, updated_at = NOW()
+		WHERE id = $7
+		RETURNING id, created_at, updated_at`
+
+	args := []any{
+		book.Title,
+		book.Author,
+		book.Pages,
+		book.Description,
+		book.Rating,
+		pq.Array(book.Genres),
+		book.ID,
+	}
+
+	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+}
+
+func (pg *PGBookStore) Delete(id int64) error {
+	if id < 1 {
+		return sql.ErrNoRows
+	}
+
+	query := `DELETE FROM books WHERE id = $1`
+	res, err := pg.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
 
 func (pg *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination, error) {

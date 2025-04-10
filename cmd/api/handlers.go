@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"github.com/doanandreas/kinder-library/internal/validator"
+	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/doanandreas/kinder-library/internal/data"
+	"github.com/doanandreas/kinder-library/internal/validator"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -73,7 +75,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 		Book: *book,
 	}
 
-	err = app.writeJSON(w, http.StatusOK, res, nil)
+	err = app.writeJSON(w, http.StatusCreated, res, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -81,7 +83,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil || id < 1 {
+	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
@@ -100,19 +102,32 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	book := data.BookResponse{
-		Book: data.Book{
-			ID:          int64(id),
-			Title:       input.Title,
-			Author:      input.Author,
-			Pages:       input.Pages,
-			Description: input.Description,
-			Rating:      input.Rating,
-			Genres:      input.Genres,
-		},
+	book := &data.Book{
+		ID:          int64(id),
+		Title:       input.Title,
+		Author:      input.Author,
+		Pages:       input.Pages,
+		Description: input.Description,
+		Rating:      input.Rating,
+		Genres:      input.Genres,
 	}
 
-	err = app.writeJSON(w, http.StatusOK, book, nil)
+	err = app.models.Books.Update(book)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	res := data.BookResponse{
+		Book: *book,
+	}
+
+	err = app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -120,12 +135,26 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil || id < 1 {
+	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	fmt.Fprintf(w, "Delete one book by ID: %d\n", id)
+	err = app.models.Books.Delete(int64(id))
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusNoContent, nil, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *Application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,8 +1,9 @@
 package data
 
 import (
-	"github.com/doanandreas/kinder-library/internal/validator"
 	"time"
+
+	"github.com/doanandreas/kinder-library/internal/validator"
 )
 
 type BookListResponse struct {
