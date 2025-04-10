@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/doanandreas/kinder-library/internal/data"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+
+	"github.com/doanandreas/kinder-library/internal/data"
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,12 +16,12 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 	page, _ := strconv.Atoi(pageStr)
 	pageSize, _ := strconv.Atoi(pageSizeStr)
 
-	data := map[string]int{
+	res := map[string]int{
 		"page":      page,
 		"page_size": pageSize,
 	}
 
-	err := app.writeJSON(w, http.StatusOK, data, nil)
+	err := app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
 		app.logger.Printf("Failed to write JSON response: %v\n", err)
 		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
@@ -54,7 +55,23 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Fprintf(w, "Update one book by ID: %d\n", id)
+	book := data.BookResponse{
+		Book: data.Book{
+			ID:          int64(id),
+			Title:       "Let's Go Further!",
+			Author:      "Alex Edwards",
+			Pages:       590,
+			Description: "Advanced REST API Golang",
+			Rating:      4.77,
+			Genres:      []string{"Programming", "Go", "Best-seller"},
+		},
+	}
+
+	err = app.writeJSON(w, http.StatusOK, book, nil)
+	if err != nil {
+		app.logger.Printf("Failed to write JSON response: %v\n", err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
 
 func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,12 +85,12 @@ func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) healthcheckHandler(w http.ResponseWriter, _ *http.Request) {
-	data := map[string]string{
+	res := map[string]string{
 		"status":  "available",
 		"version": version,
 	}
 
-	err := app.writeJSON(w, http.StatusOK, data, nil)
+	err := app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
 		app.logger.Printf("Failed to write JSON response: %v\n", err)
 		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
