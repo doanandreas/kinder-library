@@ -12,6 +12,9 @@ func (app *Application) routes() http.Handler {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
+	router.NotFound(app.notFoundResponse)
+	router.MethodNotAllowed(app.methodNotAllowedResponse)
+
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
 	router.Get("/v1/books", app.listBooksHandler)
