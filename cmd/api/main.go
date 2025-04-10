@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/doanandreas/kinder-library/internal/repository"
+
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -26,6 +28,7 @@ type Config struct {
 type Application struct {
 	config Config
 	logger *log.Logger
+	models *repository.Models
 }
 
 func main() {
@@ -55,9 +58,14 @@ func main() {
 
 	logger.Printf("database migration ran successfully")
 
+	models := &repository.Models{
+		Books: &repository.PGBookStore{DB: db},
+	}
+
 	app := &Application{
 		config: cfg,
 		logger: logger,
+		models: models,
 	}
 
 	srv := &http.Server{

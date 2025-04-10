@@ -6,8 +6,8 @@ import (
 )
 
 type BookListResponse struct {
-	Metadata Metadata `json:"metadata"`
-	Books    []Book   `json:"books"`
+	Pagination Pagination `json:"pagination"`
+	Books      []Book     `json:"books"`
 }
 
 type BookResponse struct {
@@ -39,12 +39,4 @@ type Book struct {
 	Genres      []string  `json:"genres,omitempty"`
 	CreatedAt   time.Time `json:"-"`
 	UpdatedAt   time.Time `json:"-"`
-}
-
-type Metadata struct {
-	CurrentPage  int `json:"current_page,omitempty"`
-	PageSize     int `json:"page_size,omitempty"`
-	FirstPage    int `json:"first_page,omitempty"`
-	LastPage     int `json:"last_page,omitempty"`
-	TotalRecords int `json:"total_records,omitempty"`
 }
