@@ -30,17 +30,15 @@ func (b *BookRequest) Validate(v *validator.Validator) {
 }
 
 type Book struct {
-	ID     int64  `json:"id"`
-	Title  string `json:"title"`
-	Author string `json:"author"`
-	Pages  int    `json:"pages"`
-
-	Description string   `json:"description,omitempty"`
-	Rating      float64  `json:"rating,omitempty"`
-	Genres      []string `json:"genres,omitempty"`
-
-	CreatedAt time.Time `json:"-"`
-	UpdatedAt time.Time `json:"-"`
+	ID          int64     `json:"id"`
+	Title       string    `json:"title"`
+	Author      string    `json:"author"`
+	Pages       int       `json:"pages"`
+	Description string    `json:"description,omitempty"`
+	Rating      float64   `json:"rating,omitempty"`
+	Genres      []string  `json:"genres,omitempty"`
+	CreatedAt   time.Time `json:"-"`
+	UpdatedAt   time.Time `json:"-"`
 }
 
 type Metadata struct {

@@ -93,15 +93,29 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	var input data.BookRequest
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	input.Validate(v)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	book := data.BookResponse{
 		Book: data.Book{
 			ID:          int64(id),
-			Title:       "Let's Go Further!",
-			Author:      "Alex Edwards",
-			Pages:       590,
-			Description: "Advanced REST API Golang",
-			Rating:      4.77,
-			Genres:      []string{"Programming", "Go", "Best-seller"},
+			Title:       input.Title,
+			Author:      input.Author,
+			Pages:       input.Pages,
+			Description: input.Description,
+			Rating:      input.Rating,
+			Genres:      input.Genres,
 		},
 	}
 
