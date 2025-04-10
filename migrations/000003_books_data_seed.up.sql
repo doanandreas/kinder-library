@@ -1,0 +1,22 @@
+INSERT INTO books (title, author, pages, description, rating, genres)
+VALUES
+    ('The Great Gatsby', 'F. Scott Fitzgerald', 180, 'A novel set in the Roaring Twenties.', 4.3, ARRAY['Fiction', 'Classic']),
+    ('To Kill a Mockingbird', 'Harper Lee', 281, 'A timeless story of racial injustice.', 4.8, ARRAY['Fiction', 'Classic']),
+    ('1984', 'George Orwell', 328, 'A dystopian novel about surveillance.', 4.6, ARRAY['Fiction', 'Dystopian']),
+    ('Sapiens', 'Yuval Noah Harari', 443, 'A brief history of humankind.', 4.7, ARRAY['Non-Fiction', 'History']),
+    ('Educated', 'Tara Westover', 334, 'A memoir about growing up in a survivalist family.', 4.5, ARRAY['Non-Fiction', 'Memoir']),
+    ('The Pragmatic Programmer', 'Andy Hunt & Dave Thomas', 352, 'Programming tips and philosophy.', 4.9, ARRAY['Programming', 'Software']),
+    ('Clean Code', 'Robert C. Martin', 464, 'A guide to writing clean, maintainable code.', 4.8, ARRAY['Programming', 'Best Practices']),
+    ('Atomic Habits', 'James Clear', 320, 'How small habits lead to big changes.', 4.7, ARRAY['Non-Fiction', 'Self-Help']),
+    ('Brave New World', 'Aldous Huxley', 268, 'A futuristic society with engineered citizens.', 4.2, ARRAY['Fiction', 'Science Fiction']),
+    ('The Hobbit', 'J.R.R. Tolkien', 310, 'A fantasy adventure prequel to The Lord of the Rings.', 4.9, ARRAY['Fiction', 'Fantasy']),
+    ('Grit', 'Angela Duckworth', 352, 'The power of passion and perseverance.', 4.4, ARRAY['Non-Fiction', 'Psychology']),
+    ('The Lean Startup', 'Eric Ries', 336, 'How today’s entrepreneurs use continuous innovation.', 4.6, ARRAY['Non-Fiction', 'Business']),
+    ('Refactoring', 'Martin Fowler', 448, 'Improving the design of existing code.', 4.7, ARRAY['Programming', 'Software']),
+    ('The Catcher in the Rye', 'J.D. Salinger', 277, 'A teenager’s cynical view of the adult world.', 4.1, ARRAY['Fiction', 'Classic']),
+    ('Thinking, Fast and Slow', 'Daniel Kahneman', 499, 'Explores the dual systems that drive the way we think.', 4.5, ARRAY['Non-Fiction', 'Psychology']),
+    ('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', 309, 'A young wizard’s journey begins.', 4.9, ARRAY['Fiction', 'Fantasy']),
+    ('You Don''t Know JS', 'Kyle Simpson', 278, 'Deep dive into JavaScript.', 4.6, ARRAY['Programming', 'JavaScript']),
+    ('The Design of Everyday Things', 'Don Norman', 368, 'How design shapes usability.', 4.7, ARRAY['Non-Fiction', 'Design']),
+    ('The Road', 'Cormac McCarthy', 287, 'A post-apocalyptic tale of father and son.', 4.3, ARRAY['Fiction', 'Drama']),
+    ('Zero to One', 'Peter Thiel', 224, 'Notes on startups and the future.', 4.4, ARRAY['Non-Fiction', 'Business']);
