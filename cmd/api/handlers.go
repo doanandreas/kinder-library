@@ -54,22 +54,38 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title       string   `json:"title"`
+		Author      string   `json:"author"`
+		Pages       int      `json:"pages"`
+		Description string   `json:"description"`
+		Rating      float64  `json:"rating"`
+		Genres      []string `json:"genres"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.logger.Printf("Bad request JSON: %v\n", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	book := data.BookResponse{
 		Book: data.Book{
 			ID:          1,
-			Title:       "Let's Go Further!",
-			Author:      "Alex Edwards",
-			Pages:       590,
-			Description: "Advanced REST API Golang",
-			Rating:      4.77,
-			Genres:      []string{"Programming", "Go", "Best-seller"},
+			Title:       input.Title,
+			Author:      input.Author,
+			Pages:       input.Pages,
+			Description: input.Description,
+			Rating:      input.Rating,
+			Genres:      input.Genres,
 		},
 	}
 
-	err := app.writeJSON(w, http.StatusOK, book, nil)
+	err = app.writeJSON(w, http.StatusOK, book, nil)
 	if err != nil {
 		app.logger.Printf("Failed to write JSON response: %v\n", err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
