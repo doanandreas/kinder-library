@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/doanandreas/kinder-library/internal/data"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -27,7 +28,23 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Insert a book")
+	book := data.BookResponse{
+		Book: data.Book{
+			ID:          1,
+			Title:       "Let's Go Further!",
+			Author:      "Alex Edwards",
+			Pages:       590,
+			Description: "Advanced REST API Golang",
+			Rating:      4.77,
+			Genres:      []string{"Programming", "Go", "Best-seller"},
+		},
+	}
+
+	err := app.writeJSON(w, http.StatusOK, book, nil)
+	if err != nil {
+		app.logger.Printf("Failed to write JSON response: %v\n", err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
 
 func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Request) {
