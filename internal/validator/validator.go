@@ -24,15 +24,6 @@ func (v *Validator) Check(ok bool, key, message string) {
 	}
 }
 
-func PermittedValue[T comparable](value T, permittedValues ...T) bool {
-	for i := range permittedValues {
-		if value == permittedValues[i] {
-			return true
-		}
-	}
-	return false
-}
-
 func Unique[T comparable](values []T) bool {
 	uniqueValues := make(map[T]bool)
 
@@ -41,4 +32,13 @@ func Unique[T comparable](values []T) bool {
 	}
 
 	return len(uniqueValues) == len(values)
+}
+
+func ContainsEmptyString(values []string) bool {
+	for _, v := range values {
+		if v != "" {
+			return true
+		}
+	}
+	return false
 }
