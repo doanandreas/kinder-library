@@ -12,7 +12,7 @@ type BookStore interface {
 	Insert(book *data.Book) error
 	Update(book *data.Book) error
 	Delete(id int64) error
-	List(filters data.Filters) ([]data.Book, data.Pagination, error)
+	List(filters *data.Filters) ([]data.Book, data.Pagination, error)
 }
 
 type PGBookStore struct {
@@ -77,7 +77,7 @@ func (pg *PGBookStore) Delete(id int64) error {
 	return nil
 }
 
-func (pg *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination, error) {
+func (pg *PGBookStore) List(filters *data.Filters) ([]data.Book, data.Pagination, error) {
 	books := []data.Book{
 		{
 			ID:          1,

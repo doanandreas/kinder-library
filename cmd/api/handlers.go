@@ -13,15 +13,23 @@ import (
 )
 
 func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request) {
-	pageStr := r.URL.Query().Get("page")
-	pageSizeStr := r.URL.Query().Get("page_size")
+	input := &data.FiltersRequest{
+		Page:     r.URL.Query().Get("page"),
+		PageSize: r.URL.Query().Get("page_size"),
+	}
 
-	page, _ := strconv.Atoi(pageStr)
-	pageSize, _ := strconv.Atoi(pageSizeStr)
+	v := validator.New()
+	input.Validate(v)
+	if v.Valid() == false {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 
-	filters := data.Filters{
-		Page:     page,
-		PageSize: pageSize,
+	filters := data.ParseFilters(input)
+	filters.Validate(v)
+	if v.Valid() == false {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 
 	books, pagination, err := app.models.Books.List(filters)
@@ -51,7 +59,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	v := validator.New()
 	input.Validate(v)
-	if !v.Valid() {
+	if v.Valid() == false {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -97,7 +105,7 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	v := validator.New()
 	input.Validate(v)
-	if !v.Valid() {
+	if v.Valid() == false {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
