@@ -18,10 +18,14 @@ func (app *Application) routes() http.Handler {
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
-	router.Get("/v1/books", app.listBooksHandler)
-	router.Post("/v1/books", app.insertBooksHandler)
-	router.Put("/v1/books/{id}", app.updateBooksHandler)
-	router.Delete("/v1/books/{id}", app.deleteBooksHandler)
+	router.Route("/v1/books", func(r chi.Router) {
+		r.Use(app.authRequest)
+
+		r.Get("/", app.listBooksHandler)
+		r.Post("/", app.insertBooksHandler)
+		r.Put("/{id}", app.updateBooksHandler)
+		r.Delete("/{id}", app.deleteBooksHandler)
+	})
 
 	return router
 }
