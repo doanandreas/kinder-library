@@ -36,7 +36,7 @@ func Unique[T comparable](values []T) bool {
 
 func ContainsEmptyString(values []string) bool {
 	for _, v := range values {
-		if v != "" {
+		if v == "" {
 			return true
 		}
 	}

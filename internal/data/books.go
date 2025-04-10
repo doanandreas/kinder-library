@@ -42,7 +42,7 @@ func (b *BookRequest) Validate(v *validator.Validator) {
 
 	v.Check(len(b.Genres) <= 5, "genres", "must not contain more than 5 genres")
 	v.Check(validator.Unique(b.Genres), "genres", "must not contain duplicate values")
-	v.Check(validator.ContainsEmptyString(b.Genres), "genres", "must not contain empty values")
+	v.Check(validator.ContainsEmptyString(b.Genres) == false, "genres", "must not contain empty values")
 }
 
 func hasTwoDecimalPlaces(f float64) bool {

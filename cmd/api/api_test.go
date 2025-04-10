@@ -53,11 +53,69 @@ func Test_HealthCheck(t *testing.T) {
 	}
 }
 
+func Test_InsertBook(t *testing.T) {
+	var wrongTitle string
+	wrongTitle = "Existing Title"
+
+	tests := []struct {
+		name        string
+		title       string
+		pages       int
+		rating      float64
+		genres      []string
+		eStatusCode int
+	}{
+		{"Book inserted", "Unique Title", 123, 4.56, []string{"testing", "mocking"}, http.StatusCreated},
+		{"Book title already exists", wrongTitle, 123, 4.56, []string{"testing", "mocking"}, http.StatusUnprocessableEntity},
+		{"Book title is empty", "", 123, 4.56, []string{"testing", "mocking"}, http.StatusUnprocessableEntity},
+		{"Book pages are non-positive", "Unique Title", -2, 4.56, []string{"testing", "mocking"}, http.StatusUnprocessableEntity},
+		{"Book rating is outside valid range", "Unique Title", -2, 7.12, []string{"testing", "mocking"}, http.StatusUnprocessableEntity},
+		{"Book rating has too many decimals", "Unique Title", -2, 7.123456, []string{"testing", "mocking"}, http.StatusUnprocessableEntity},
+		{"Book genres contains duplicates", "Unique Title", 123, 4.56, []string{"duplicate", "duplicate"}, http.StatusUnprocessableEntity},
+		{"Book genres contains empty string", "Unique Title", 123, 4.56, []string{"testing", ""}, http.StatusUnprocessableEntity},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := Application{
+				models: &repository.Models{
+					Books: mocks.InsertBookMock(wrongTitle),
+				},
+				logger: log.New(io.Discard, "", 0),
+			}
+
+			req := data.BookRequest{
+				Title:       tt.title,
+				Author:      "Test Author",
+				Pages:       tt.pages,
+				Description: "Just testing!",
+				Rating:      tt.rating,
+				Genres:      tt.genres,
+			}
+
+			body, err := json.Marshal(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			sut := httptest.NewRecorder()
+			r := httptest.NewRequest("POST", "/v1/books", bytes.NewReader(body))
+
+			handler := http.HandlerFunc(app.insertBooksHandler)
+			handler.ServeHTTP(sut, r)
+
+			if sut.Result().StatusCode != tt.eStatusCode {
+				t.Errorf("got '%d'; expected '%d'", sut.Result().StatusCode, tt.eStatusCode)
+			}
+		})
+	}
+}
+
 func Test_UpdateBook(t *testing.T) {
 	var correctId int64
 	var wrongTitle string
 	correctId = 7
-	wrongTitle = "Kinder"
+	wrongTitle = "Existing Title"
 
 	tests := []struct {
 		name        string
