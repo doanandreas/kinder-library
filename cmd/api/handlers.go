@@ -99,7 +99,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -120,7 +120,7 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	book := &data.Book{
-		ID:          int64(id),
+		ID:          id,
 		Title:       input.Title,
 		Author:      input.Author,
 		Pages:       input.Pages,
@@ -155,13 +155,13 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	err = app.models.Books.Delete(int64(id))
+	err = app.models.Books.Delete(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrRecordNotFound):
