@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/doanandreas/kinder-library/internal/data"
 	"github.com/doanandreas/kinder-library/internal/mocks"
 	"github.com/doanandreas/kinder-library/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -50,6 +53,67 @@ func Test_HealthCheck(t *testing.T) {
 	}
 }
 
+func Test_UpdateBook(t *testing.T) {
+	var correctId int64
+	var wrongTitle string
+	correctId = 7
+	wrongTitle = "Kinder"
+
+	tests := []struct {
+		name        string
+		id          string
+		title       string
+		eStatusCode int
+	}{
+		{"Book updated", strconv.Itoa(int(correctId)), "Unique Title", http.StatusOK},
+		{"Book title is not unique", strconv.Itoa(int(correctId)), wrongTitle, http.StatusUnprocessableEntity},
+		{"Mandatory field is empty", strconv.Itoa(int(correctId)), "", http.StatusUnprocessableEntity},
+		{"Book ID not found", "2", "Unique Title", http.StatusNotFound},
+		{"Book ID is zero", "0", "Dummy Title", http.StatusUnprocessableEntity},
+		{"Book ID is negative", "-3", "Dummy Title", http.StatusUnprocessableEntity},
+		{"Book ID is not int64", "hello", "Dummy Title", http.StatusUnprocessableEntity},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := Application{
+				models: &repository.Models{
+					Books: mocks.UpdateBookMock(correctId, wrongTitle),
+				},
+				logger: log.New(io.Discard, "", 0),
+			}
+
+			req := data.BookRequest{
+				Title:       tt.title,
+				Author:      "Test Author",
+				Pages:       123,
+				Description: "Just testing!",
+				Rating:      4.53,
+				Genres:      []string{"testing", "mocking"},
+			}
+
+			body, err := json.Marshal(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			sut := httptest.NewRecorder()
+			r := httptest.NewRequest("PUT", "/v1/movies/{id}", bytes.NewReader(body))
+
+			rCtx := chi.NewRouteContext()
+			rCtx.URLParams.Add("id", tt.id)
+			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtx))
+
+			handler := http.HandlerFunc(app.updateBooksHandler)
+			handler.ServeHTTP(sut, r)
+
+			if sut.Result().StatusCode != tt.eStatusCode {
+				t.Errorf("got '%d'; expected '%d'", sut.Result().StatusCode, tt.eStatusCode)
+			}
+		})
+	}
+}
+
 func Test_DeleteBook(t *testing.T) {
 	var correctId int64
 	correctId = 7
@@ -72,6 +136,7 @@ func Test_DeleteBook(t *testing.T) {
 				models: &repository.Models{
 					Books: mocks.DeleteBookMock(correctId),
 				},
+				logger: log.New(io.Discard, "", 0),
 			}
 
 			sut := httptest.NewRecorder()

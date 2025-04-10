@@ -99,9 +99,18 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Request) {
+	v := validator.New()
+
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		v.AddError("id", "must be an integer")
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if id <= 0 {
+		v.AddError("id", "must be a positive, non-zero integer")
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -112,7 +121,6 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	v := validator.New()
 	input.Validate(v)
 	if v.Valid() == false {
 		app.failedValidationResponse(w, r, v.Errors)
