@@ -177,15 +177,3 @@ func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
-
-func (app *Application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
-	res := map[string]string{
-		"status":  "available",
-		"version": version,
-	}
-
-	err := app.writeJSON(w, http.StatusOK, res, nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
-}
