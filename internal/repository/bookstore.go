@@ -12,7 +12,7 @@ type BookStore interface {
 	Insert(book *data.Book) error
 	Update(book *data.Book) error
 	Delete(id int64) error
-	List(filters *data.Filters) ([]data.Book, data.Pagination, error)
+	List(filters data.Filters) ([]data.Book, data.Pagination, error)
 }
 
 type PGBookStore struct {
@@ -77,62 +77,52 @@ func (pg *PGBookStore) Delete(id int64) error {
 	return nil
 }
 
-func (pg *PGBookStore) List(filters *data.Filters) ([]data.Book, data.Pagination, error) {
-	books := []data.Book{
-		{
-			ID:          1,
-			Title:       "The Pragmatic Programmer",
-			Author:      "Andrew Hunt and David Thomas",
-			Pages:       352,
-			Description: "A classic book offering practical advice for programmers on how to think and work effectively.",
-			Rating:      4.7,
-			Genres:      []string{"Programming", "Software Engineering"},
-		},
-		{
-			ID:          2,
-			Title:       "Clean Code",
-			Author:      "Robert C. Martin",
-			Pages:       464,
-			Description: "Teaches best practices for writing clean, maintainable, and efficient code.",
-			Rating:      4.6,
-			Genres:      []string{"Programming", "Software Engineering"},
-		},
-		{
-			ID:          3,
-			Title:       "Go Programming Language",
-			Author:      "Alan A. A. Donovan and Brian W. Kernighan",
-			Pages:       380,
-			Description: "A thorough introduction to the Go programming language by one of its creators.",
-			Rating:      4.5,
-			Genres:      []string{"Programming", "Go"},
-		},
-		{
-			ID:          4,
-			Title:       "Design Patterns: Elements of Reusable Object-Oriented Software",
-			Author:      "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
-			Pages:       395,
-			Description: "The foundational book on design patterns in object-oriented programming.",
-			Rating:      4.4,
-			Genres:      []string{"Programming", "Design Patterns"},
-		},
-		{
-			ID:          5,
-			Title:       "Refactoring: Improving the Design of Existing Code",
-			Author:      "Martin Fowler",
-			Pages:       448,
-			Description: "Explains how to restructure existing code for improved readability and performance.",
-			Rating:      4.6,
-			Genres:      []string{"Programming", "Refactoring"},
-		},
+func (pg *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination, error) {
+	query := `
+		SELECT count(*) OVER(), id, title, author, pages, description, rating, genres, created_at, updated_at
+		FROM books
+		ORDER BY title ASC
+		LIMIT $1 OFFSET $2`
+
+	args := []any{filters.Limit(), filters.Offset()}
+
+	rows, err := pg.DB.Query(query, args...)
+	if err != nil {
+		return nil, data.Pagination{}, err
+	}
+	defer rows.Close()
+
+	totalRecords := 0
+	books := []data.Book{}
+
+	for rows.Next() {
+		var book data.Book
+
+		err := rows.Scan(
+			&totalRecords,
+			&book.ID,
+			&book.Title,
+			&book.Author,
+			&book.Pages,
+			&book.Description,
+			&book.Rating,
+			pq.Array(&book.Genres),
+			&book.CreatedAt,
+			&book.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, data.Pagination{}, err
+		}
+
+		books = append(books, book)
 	}
 
-	pagination := data.Pagination{
-		CurrentPage:  filters.Page,
-		PageSize:     filters.PageSize,
-		FirstPage:    1,
-		LastPage:     10,
-		TotalRecords: 61,
+	if err := rows.Err(); err != nil {
+		return nil, data.Pagination{}, err
 	}
+
+	pagination := data.CalculatePaginationData(totalRecords, filters.Page, filters.PageSize)
 
 	return books, pagination, nil
 }
