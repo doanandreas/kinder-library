@@ -8,7 +8,22 @@ import (
 )
 
 func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "List all books with pagination")
+	pageStr := r.URL.Query().Get("page")
+	pageSizeStr := r.URL.Query().Get("page_size")
+
+	page, _ := strconv.Atoi(pageStr)
+	pageSize, _ := strconv.Atoi(pageSizeStr)
+
+	data := map[string]int{
+		"page":      page,
+		"page_size": pageSize,
+	}
+
+	err := app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		app.logger.Printf("Failed to write JSON response: %v\n", err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
 
 func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Request) {
