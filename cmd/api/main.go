@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
@@ -39,6 +43,13 @@ func main() {
 	defer db.Close()
 
 	logger.Printf("database connection established")
+
+	err = migrateDB(cfg)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	logger.Printf("database migration ran successfully")
 
 	app := &Application{
 		config: cfg,
@@ -73,4 +84,17 @@ func openDB(cfg Config) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func migrateDB(cfg Config) error {
+	m, err := migrate.New("file://migrations", cfg.dsn)
+	if err != nil {
+		return err
+	}
+
+	if err := m.Up(); err != nil && errors.Is(err, migrate.ErrNoChange) == false {
+		return err
+	}
+
+	return nil
 }
