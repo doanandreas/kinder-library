@@ -96,9 +96,7 @@ func migrateDB(cfg Config) error {
 		return err
 	}
 
-	err = m.Up()
-
-	if err != nil {
+	if err = m.Up(); err != nil {
 		return err
 	}
 
