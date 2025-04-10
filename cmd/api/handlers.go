@@ -1,8 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
+	"github.com/doanandreas/kinder-library/internal/repository"
 	"net/http"
 	"strconv"
 
@@ -75,6 +75,15 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	err = app.models.Books.Insert(book)
 	if err != nil {
+		switch {
+		case errors.Is(err, repository.ErrDuplicateTitle):
+			v.AddError("title", "must be unique")
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -123,8 +132,12 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 	err = app.models.Books.Update(book)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, repository.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
+		case errors.Is(err, repository.ErrDuplicateTitle):
+			v.AddError("title", "must be unique")
+			app.failedValidationResponse(w, r, v.Errors)
+			return
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -151,7 +164,7 @@ func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Reques
 	err = app.models.Books.Delete(int64(id))
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, repository.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)

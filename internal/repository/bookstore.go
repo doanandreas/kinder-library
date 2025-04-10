@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-
+	"errors"
 	"github.com/doanandreas/kinder-library/internal/data"
 
 	"github.com/lib/pq"
@@ -27,12 +27,21 @@ func (pg *PGBookStore) Insert(book *data.Book) error {
 
 	args := []any{book.Title, book.Author, book.Pages, book.Description, book.Rating, pq.Array(book.Genres)}
 
-	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+	err := pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return ErrDuplicateTitle
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (pg *PGBookStore) Update(book *data.Book) error {
 	if book.ID < 1 {
-		return sql.ErrNoRows
+		return ErrRecordNotFound
 	}
 
 	query := `
@@ -51,12 +60,25 @@ func (pg *PGBookStore) Update(book *data.Book) error {
 		book.ID,
 	}
 
-	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+	err := pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrRecordNotFound
+		}
+
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return ErrDuplicateTitle
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (pg *PGBookStore) Delete(id int64) error {
 	if id < 1 {
-		return sql.ErrNoRows
+		return ErrRecordNotFound
 	}
 
 	query := `DELETE FROM books WHERE id = $1`
@@ -71,7 +93,7 @@ func (pg *PGBookStore) Delete(id int64) error {
 	}
 
 	if count == 0 {
-		return sql.ErrNoRows
+		return ErrRecordNotFound
 	}
 
 	return nil
