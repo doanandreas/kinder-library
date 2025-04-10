@@ -24,7 +24,7 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 
 	books, pagination, err := app.models.Books.List(filters)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 

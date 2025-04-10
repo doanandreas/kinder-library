@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
 
 	"github.com/doanandreas/kinder-library/internal/data"
 )
@@ -17,11 +18,11 @@ type PGBookStore struct {
 
 func (pg *PGBookStore) Insert(book *data.Book) error {
 	query := `
-		INSERT INTO books (title, author, pages)
-		VALUES ($1, $2, $3)
+		INSERT INTO books (title, author, pages, description, rating, genres)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at, updated_at`
 
-	args := []any{book.Title, book.Author, book.Pages}
+	args := []any{book.Title, book.Author, book.Pages, book.Description, book.Rating, pq.Array(book.Genres)}
 
 	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
 }
