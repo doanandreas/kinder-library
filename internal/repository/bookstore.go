@@ -7,6 +7,7 @@ import (
 )
 
 type BookStore interface {
+	Insert(book *data.Book) error
 	List(filters data.Filters) ([]data.Book, data.Pagination, error)
 }
 
@@ -14,7 +15,18 @@ type PGBookStore struct {
 	DB *sql.DB
 }
 
-func (p *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination, error) {
+func (pg *PGBookStore) Insert(book *data.Book) error {
+	query := `
+		INSERT INTO books (title, author, pages)
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at, updated_at`
+
+	args := []any{book.Title, book.Author, book.Pages}
+
+	return pg.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.UpdatedAt)
+}
+
+func (pg *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination, error) {
 	books := []data.Book{
 		{
 			ID:          1,

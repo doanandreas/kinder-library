@@ -37,6 +37,6 @@ type Book struct {
 	Description string    `json:"description,omitempty"`
 	Rating      float64   `json:"rating,omitempty"`
 	Genres      []string  `json:"genres,omitempty"`
-	CreatedAt   time.Time `json:"-"`
-	UpdatedAt   time.Time `json:"-"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }

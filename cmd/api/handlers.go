@@ -54,19 +54,26 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	book := data.BookResponse{
-		Book: data.Book{
-			ID:          1,
-			Title:       input.Title,
-			Author:      input.Author,
-			Pages:       input.Pages,
-			Description: input.Description,
-			Rating:      input.Rating,
-			Genres:      input.Genres,
-		},
+	book := &data.Book{
+		Title:       input.Title,
+		Author:      input.Author,
+		Pages:       input.Pages,
+		Description: input.Description,
+		Rating:      input.Rating,
+		Genres:      input.Genres,
 	}
 
-	err = app.writeJSON(w, http.StatusOK, book, nil)
+	err = app.models.Books.Insert(book)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	res := data.BookResponse{
+		Book: *book,
+	}
+
+	err = app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
