@@ -53,14 +53,7 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Title       string   `json:"title"`
-		Author      string   `json:"author"`
-		Pages       int      `json:"pages"`
-		Description string   `json:"description"`
-		Rating      float64  `json:"rating"`
-		Genres      []string `json:"genres"`
-	}
+	var input data.BookRequest
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {

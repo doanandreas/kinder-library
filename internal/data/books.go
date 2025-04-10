@@ -11,6 +11,15 @@ type BookResponse struct {
 	Book Book `json:"book"`
 }
 
+type BookRequest struct {
+	Title       string   `json:"title"`
+	Author      string   `json:"author"`
+	Pages       int      `json:"pages"`
+	Description string   `json:"description"`
+	Rating      float64  `json:"rating"`
+	Genres      []string `json:"genres"`
+}
+
 type Book struct {
 	ID     int64  `json:"id"`
 	Title  string `json:"title"`
