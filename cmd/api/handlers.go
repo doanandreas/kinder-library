@@ -157,7 +157,16 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		v := validator.New()
+		v.AddError("id", "must be an integer")
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if id <= 0 {
+		v := validator.New()
+		v.AddError("id", "must be a positive, non-zero integer")
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
