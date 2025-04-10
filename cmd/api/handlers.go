@@ -48,8 +48,7 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 
 	err := app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
-		app.logger.Printf("Failed to write JSON response: %v\n", err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
 
@@ -65,8 +64,7 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.logger.Printf("Bad request JSON: %v\n", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -84,15 +82,14 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	err = app.writeJSON(w, http.StatusOK, book, nil)
 	if err != nil {
-		app.logger.Printf("Failed to write JSON response: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -110,22 +107,21 @@ func (app *Application) updateBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	err = app.writeJSON(w, http.StatusOK, book, nil)
 	if err != nil {
-		app.logger.Printf("Failed to write JSON response: %v\n", err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *Application) deleteBooksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFoundResponse(w, r)
 		return
 	}
 
 	fmt.Fprintf(w, "Delete one book by ID: %d\n", id)
 }
 
-func (app *Application) healthcheckHandler(w http.ResponseWriter, _ *http.Request) {
+func (app *Application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	res := map[string]string{
 		"status":  "available",
 		"version": version,
@@ -133,7 +129,6 @@ func (app *Application) healthcheckHandler(w http.ResponseWriter, _ *http.Reques
 
 	err := app.writeJSON(w, http.StatusOK, res, nil)
 	if err != nil {
-		app.logger.Printf("Failed to write JSON response: %v\n", err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
