@@ -16,9 +16,34 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 	page, _ := strconv.Atoi(pageStr)
 	pageSize, _ := strconv.Atoi(pageSizeStr)
 
-	res := map[string]int{
-		"page":      page,
-		"page_size": pageSize,
+	res := data.BookListResponse{
+		Metadata: data.Metadata{
+			CurrentPage:  page,
+			PageSize:     pageSize,
+			FirstPage:    1,
+			LastPage:     5,
+			TotalRecords: 37,
+		},
+		Books: []data.Book{
+			{
+				ID:          1,
+				Title:       "Let's Go!",
+				Author:      "Alex Edwards",
+				Pages:       426,
+				Description: "Introduction REST API Golang",
+				Rating:      4.62,
+				Genres:      []string{"Programming", "Go", "Best-seller"},
+			},
+			{
+				ID:          2,
+				Title:       "Let's Go Further!",
+				Author:      "Alex Edwards",
+				Pages:       590,
+				Description: "Advanced REST API Golang",
+				Rating:      4.77,
+				Genres:      []string{"Programming", "Go", "Best-seller"},
+			},
+		},
 	}
 
 	err := app.writeJSON(w, http.StatusOK, res, nil)
