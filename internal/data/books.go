@@ -24,7 +24,9 @@ type BookRequest struct {
 }
 
 func (b *BookRequest) Validate(v *validator.Validator) {
-
+	v.Check(b.Title != "", "title", "must be provided")
+	v.Check(b.Author != "", "author", "must be provided")
+	v.Check(b.Pages != 0, "pages", "must be provided")
 }
 
 type Book struct {

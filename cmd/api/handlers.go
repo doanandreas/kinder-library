@@ -55,7 +55,6 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 
 func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Request) {
 	var input data.BookRequest
-
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -64,7 +63,6 @@ func (app *Application) insertBooksHandler(w http.ResponseWriter, r *http.Reques
 
 	v := validator.New()
 	input.Validate(v)
-
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
