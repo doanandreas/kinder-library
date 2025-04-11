@@ -4,16 +4,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/doanandreas/kinder-library/internal/data"
-	"github.com/doanandreas/kinder-library/internal/mocks"
-	"github.com/doanandreas/kinder-library/internal/repository"
-	"github.com/go-chi/chi/v5"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/doanandreas/kinder-library/internal/data"
+	"github.com/doanandreas/kinder-library/internal/mocks"
+	"github.com/doanandreas/kinder-library/internal/repository"
 )
 
 func Test_HealthCheck(t *testing.T) {
@@ -48,6 +51,41 @@ func Test_HealthCheck(t *testing.T) {
 
 			if js.Status != "available" {
 				t.Errorf("got %s; expected 'available'", js.Status)
+			}
+		})
+	}
+}
+
+func Test_ListBooks(t *testing.T) {
+	tests := []struct {
+		name        string
+		page        string
+		pageSize    string
+		eStatusCode int
+	}{
+		{"List all books", "1", "2", http.StatusOK},
+		{"Queries are not int", "abc", "def", http.StatusUnprocessableEntity},
+		{"Queries are not positive int", "-1", "-5", http.StatusUnprocessableEntity},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := Application{
+				models: &repository.Models{
+					Books: mocks.ListBookMock(),
+				},
+				logger: log.New(io.Discard, "", 0),
+			}
+
+			sut := httptest.NewRecorder()
+			url := fmt.Sprintf("/v1/books?page=%s&page_size=%s", tt.page, tt.pageSize)
+			r := httptest.NewRequest("GET", url, nil)
+
+			handler := http.HandlerFunc(app.listBooksHandler)
+			handler.ServeHTTP(sut, r)
+
+			if sut.Result().StatusCode != tt.eStatusCode {
+				t.Errorf("got '%d'; expected '%d'", sut.Result().StatusCode, tt.eStatusCode)
 			}
 		})
 	}
@@ -156,7 +194,7 @@ func Test_UpdateBook(t *testing.T) {
 			}
 
 			sut := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/v1/movies/{id}", bytes.NewReader(body))
+			r := httptest.NewRequest("PUT", "/v1/books/{id}", bytes.NewReader(body))
 
 			rCtx := chi.NewRouteContext()
 			rCtx.URLParams.Add("id", tt.id)
@@ -198,7 +236,7 @@ func Test_DeleteBook(t *testing.T) {
 			}
 
 			sut := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/v1/movies/{id}", nil)
+			r := httptest.NewRequest("DELETE", "/v1/books/{id}", nil)
 
 			rCtx := chi.NewRouteContext()
 			rCtx.URLParams.Add("id", tt.id)
