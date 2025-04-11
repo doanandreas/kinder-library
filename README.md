@@ -14,13 +14,15 @@ Ensure you have the following installed:
 
 ## 🚀 How to run the API
 
-### Run using Docker Compose:
+1. Create a `.env` file using the contents of `.env.example`.
+
+2. Run using Docker Compose:
 
 ```bash
 docker compose up --build
 ```
 
-Once running, access the API at:
+3. Once running, access the API at:
 
 ```
 http://localhost:8080/v1/books
@@ -30,7 +32,7 @@ http://localhost:8080/v1/books
 
 ## ✅ How to run tests
 
-Run all tests in the project:
+Run all tests inside a Docker container:
 
 ```bash
 docker build -f Test.Dockerfile -t kinder-library-test .
@@ -63,7 +65,7 @@ All endpoints (except `/v1/healthcheck`) require **Basic Authentication**.
 Authorization: Basic ZG9hbjpkaWRpbmRpbmc=
 ```
 
-(This is Base64-encoded `admin:password123`)
+(This is Base64-encoded `doan:didinding`)
 
 ---
 
@@ -89,10 +91,10 @@ Authorization: Basic ZG9hbjpkaWRpbmRpbmc=
 ├── internal/repository  # DB interaction logic
 ├── internal/validator   # Input validation helpers
 ├── go.mod / go.sum      # Go modules
-├── .env.example         # Example .env file. Don't forget to create .env file yourself!
+├── .env.example         # Example .env file. Copy and rename it to .env before running.
 ├── docker-compose.yaml  # Docker Compose configuration files
 ├── Dockerfile           # Dockerfile for building API binaries
-├── Test.Dockerfile      # Dockerfile for running test
+├── Test.Dockerfile      # Dockerfile for running tests
 ├── wait-for-it.sh       # Script to wait for Postgres container
 ```
 
@@ -100,4 +102,4 @@ Authorization: Basic ZG9hbjpkaWRpbmRpbmc=
 
 ## 👤 Author
 
-Made with 💛 by Doan Andreas Nathanael for KinderCastle take home interview.
+Made with 💛 by Doan Andreas Nathanael for KinderCastle take-home interview.
