@@ -144,6 +144,10 @@ func (pg *PGBookStore) List(filters data.Filters) ([]data.Book, data.Pagination,
 		return nil, data.Pagination{}, err
 	}
 
+	if filters.Page > 1 && totalRecords == 0 {
+		return nil, data.Pagination{}, ErrPageOutOfBounds
+	}
+
 	pagination := data.CalculatePaginationData(totalRecords, filters.Page, filters.PageSize)
 
 	return books, pagination, nil

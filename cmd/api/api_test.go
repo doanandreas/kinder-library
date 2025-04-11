@@ -64,6 +64,7 @@ func Test_ListBooks(t *testing.T) {
 		eStatusCode int
 	}{
 		{"List all books", "1", "2", http.StatusOK},
+		{"Page out of bounds", "5", "2", http.StatusNotFound},
 		{"Queries are not int", "abc", "def", http.StatusUnprocessableEntity},
 		{"Queries are not positive int", "-1", "-5", http.StatusUnprocessableEntity},
 	}

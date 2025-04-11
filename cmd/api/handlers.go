@@ -34,7 +34,12 @@ func (app *Application) listBooksHandler(w http.ResponseWriter, r *http.Request)
 
 	books, pagination, err := app.models.Books.List(filters)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, repository.ErrPageOutOfBounds):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

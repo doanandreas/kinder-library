@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"github.com/doanandreas/kinder-library/internal/repository"
 	"time"
 
 	"github.com/doanandreas/kinder-library/internal/data"
@@ -9,6 +10,10 @@ import (
 func ListBookMock() *MockBookStore {
 	return &MockBookStore{
 		ListFunc: func(filters data.Filters) ([]data.Book, data.Pagination, error) {
+			if filters.Page > 1 {
+				return nil, data.Pagination{}, repository.ErrPageOutOfBounds
+			}
+
 			mockBooks := []data.Book{
 				{
 					ID:          1,
