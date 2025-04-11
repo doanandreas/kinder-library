@@ -46,7 +46,7 @@ docker run --rm kinder-library-test
 The Swagger UI is embedded. View the API documentation by:
 
 1. Run the application with `docker compose up --build`, and
-2. Open API docs at `http://localhost:8080/v1/swagger`.
+2. Open API docs at `http://localhost:8080/v1/swagger/` **(Don't forget the backslash!)**.
 
 ---
 
